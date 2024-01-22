@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export DOCKER_DEFAULT_PLATFORM=linux/amd64
+
 VERSION="$(awk '/Version:/ {print $2",",$4}' README.md |sed 's/_//g')"
 DATETIME=$(date +"%s")
 
@@ -70,9 +72,9 @@ pull_latest () {
 }
 
 rebuild_image () {
-  IMAGE="$(sudo docker images ${IMAGENAME} |grep latest)"
+  IMAGE="$(docker images ${IMAGENAME} |grep latest)"
   if [[ ! -z $IMAGE ]] ; then
-    RMI=$(sudo docker rmi ${IMAGENAME}:latest 2>&1) || \
+    RMI=$(docker rmi ${IMAGENAME}:latest 2>&1) || \
     f_err "Unable to remove ${IMAGENAME}:latest tag\n\n ${RMI}"
   fi
     
@@ -80,9 +82,9 @@ rebuild_image () {
     echo 'Building image without Docker cache'
   fi
   echo "Building new image - ${IMAGENAME}:latest"
-  BUILD=$(sudo docker build $CACHE -t ${IMAGENAME}:${DATETIME} . 2>&1) || \
+  BUILD=$(docker build $CACHE -t ${IMAGENAME}:${DATETIME} . 2>&1) || \
     f_err "Unable to build image ${IMAGENAME}:${DATETIME}\n\n ${BUILD}"
-  TAG=$(sudo docker tag ${IMAGENAME}:${DATETIME} ${IMAGENAME}:latest 2>&1) || \
+  TAG=$(docker tag ${IMAGENAME}:${DATETIME} ${IMAGENAME}:latest 2>&1) || \
     f_err "Unable to tag image ${IMAGENAME}:latest\n\n ${TAG}"
 }
 
@@ -148,7 +150,7 @@ if [[ -z $VOLMNT ]] ; then
   echo 'Not setting up persistent save location'
 fi
 
-DFS=$(sudo docker run -p ${LOCAL_PORT}:6080 $VOLMNT -d ${IMAGENAME}:latest 2>&1) && \
+DFS=$(docker run -p ${LOCAL_PORT}:6080 $VOLMNT -d ${IMAGENAME}:latest 2>&1) && \
   write_ok "Starting Dwarf Fortress server" && exit 0
 
 # If we didn't Exit 0 above, then exit 1

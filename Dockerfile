@@ -1,7 +1,10 @@
 FROM ubuntu:latest
 MAINTAINER Chris Collins <collins.christopher@gmail.com>
 
-ENV PKGS git x11vnc wget python python-numpy unzip xvfb curl tar bzip2 runit
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=America/Los_Angeles
+
+ENV PKGS git x11vnc wget python3 python-is-python3 unzip xvfb curl tar bzip2 runit
 ENV DFPKGS libgtk2.0-0 libglu1-mesa libsdl-image1.2 libsdl-sound1.2 libsdl-ttf2.0-0 libopenal1 net-tools
 ENV NOVNC https://github.com/kanaka/noVNC.git
 ENV DF http://www.bay12games.com/dwarves/df_43_05_linux.tar.bz2
@@ -27,6 +30,9 @@ RUN bash -c "mkdir -p /etc/service/{X11vnc,noVNC,df}"
 ADD X11vnc.run /etc/service/X11vnc/run
 ADD noVNC.run /etc/service/noVNC/run
 ADD df.run /etc/service/df/run
+
+#
+RUN rm /df_linux/libs/libstdc++.so.6 /df_linux/libs/libgcc_s.so.1
 
 RUN chmod -R +x /etc/service
 
